@@ -4,13 +4,14 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import Link from "@mui/material/Link";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Patient } from "./patient";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -48,6 +49,8 @@ function a11yProps(index) {
 const ReceptionistHomePage = () => {
   let navigate = useNavigate();
   const [value, setValue] = React.useState(0);
+  const isLogin = localStorage.getItem("isLogin");
+  console.log(isLogin);
   const initialValues = {
     email: "",
     password: "",
@@ -63,7 +66,7 @@ const ReceptionistHomePage = () => {
   };
   const validationSchemaForRegister = Yup.object({
     name: Yup.string().required("Required Name"),
-    age: Yup.number().required("Required Age"),
+    NIC: Yup.number().required("Required NIC number"),
     email: Yup.string().email("Invalid email address").required("Required"),
     phone: Yup.string()
       .matches(/^0\d{9}$/, {
@@ -79,239 +82,275 @@ const ReceptionistHomePage = () => {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+  const onSubmit = (values) => {
+    const responses = axios
+
+      .post(`http://localhost:8020/user/login`, {
+        email: values.email,
+        password: values.password,
+      })
+      .then((response) => {
+        toast.success("Successfully Logged In");
+        localStorage.setItem("isLogin", true);
+      })
+
+      .catch((error) => {
+        toast.error("Invalid Credentials");
+      });
+  };
+  const onRegisterSubmit = (values) => {
+    const responses = axios
+      .post(`http://localhost:8020/user/register`, {
+        name: values.name,
+        NIC: values.NIC,
+        email: values.email,
+        contact: values.phone,
+        password: values.password,
+      })
+      .then((response) => {
+        toast.success("Successfully Registered");
+      });
+  };
   return (
     <div className=" w-full bg-slate-400 flex justify-center content-center shadow-lg p-10 h-screen overflow-auto">
-      <div className=" bg-slate-100 w-1/2 p-10 shadow-lg rounded-lg min-h-screen">
-        <Box sx={{ width: "100%" }}>
-          <Box
-            className="flex justify-center mt-5 "
-            sx={{
-              borderBottom: 1,
-              borderColor: "divider",
-              textAlign: "center",
-            }}
-          >
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              aria-label="basic tabs example"
+      {isLogin ? (
+        <div className=" bg-slate-100 w-full p-10 shadow-lg rounded-lg min-h-screen overflow-auto">
+          <Patient />
+        </div>
+      ) : (
+        <div className=" bg-slate-100 w-1/2 p-10 shadow-lg rounded-lg min-h-screen overflow-auto">
+          <Box sx={{ width: "100%" }}>
+            <Box
+              className="flex justify-center mt-5 "
+              sx={{
+                borderBottom: 1,
+                borderColor: "divider",
+                textAlign: "center",
+              }}
             >
-              <Tab label="Login" {...a11yProps(0)} />
-              <Tab label="Register" {...a11yProps(1)} />
-            </Tabs>
-          </Box>
-          <TabPanel value={value} index={0}>
-            <section className="">
-              <div className="w-full">
-                <Formik
-                  initialValues={initialValues}
-                  validationSchema={validationSchema}
-                >
-                  {({ errors, touched }) => (
-                    <Form>
-                      <div className="flex-col w-full">
-                        <div className="ll">
-                          {" "}
-                          <p className="font-semibold">Email</p>
-                        </div>
-                        <div className="ll">
-                          {" "}
-                          <Field
-                            className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                            type="email"
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                aria-label="basic tabs example"
+              >
+                <Tab label="Login" {...a11yProps(0)} />
+                <Tab label="Register" {...a11yProps(1)} />
+              </Tabs>
+            </Box>
+            <TabPanel value={value} index={0}>
+              <section className="">
+                <div className="w-full">
+                  <Formik
+                    initialValues={initialValues}
+                    validationSchema={validationSchema}
+                    onSubmit={onSubmit}
+                  >
+                    {({ errors, touched }) => (
+                      <Form>
+                        <div className="flex-col w-full">
+                          <div className="ll">
+                            {" "}
+                            <p className="font-semibold">Email</p>
+                          </div>
+                          <div className="ll">
+                            {" "}
+                            <Field
+                              className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
+                              type="email"
+                              name="email"
+                            />
+                          </div>
+
+                          <ErrorMessage
+                            component="div"
+                            className="text-red-500 text-xs"
                             name="email"
                           />
                         </div>
 
-                        <ErrorMessage
-                          component="div"
-                          className="text-red-500 text-xs"
-                          name="email"
-                        />
-                      </div>
+                        <div className="flex-col">
+                          <div className="ll">
+                            {" "}
+                            <p className="font-semibold">Password</p>
+                          </div>
+                          <div className="ll">
+                            {" "}
+                            <Field
+                              className="border border-grey-dark text-sm p-3 my-1 rounded-md w-full"
+                              type="password"
+                              name="password"
+                            />
+                          </div>
 
-                      <div className="flex-col">
-                        <div className="ll">
-                          {" "}
-                          <p className="font-semibold">Password</p>
-                        </div>
-                        <div className="ll">
-                          {" "}
-                          <Field
-                            className="border border-grey-dark text-sm p-3 my-1 rounded-md w-full"
-                            type="password"
+                          <ErrorMessage
+                            component="div"
+                            className="text-red-500 text-xs italic"
                             name="password"
                           />
                         </div>
 
-                        <ErrorMessage
-                          component="div"
-                          className="text-red-500 text-xs italic"
-                          name="password"
-                        />
-                      </div>
-
-                      <button
-                        className="bg-yellow-600 text-white w-full py-2 mt-2 hover:bg-white hover:text-black border-2
+                        <button
+                          className="bg-yellow-600 text-white w-full py-2 mt-2 hover:bg-white hover:text-black border-2
                 "
-                        type="submit"
-                      >
-                        Login
-                      </button>
-                    </Form>
-                  )}
-                </Formik>
-              </div>
-            </section>
-          </TabPanel>
-          <TabPanel className="overflow-auto" value={value} index={1}>
-            <section className="">
-              <div className="h-screen overflow-auto">
-                <Formik
-                  initialValues={initialValuesForRegister}
-                  validationSchema={validationSchemaForRegister}
-                >
-                  {({ errors, touched }) => (
-                    <Form>
-                      <div className="flex-col w-full">
-                        <div className="ll">
-                          {" "}
-                          <p className="font-semibold">Name</p>
-                        </div>
-                        <div className="ll">
-                          {" "}
-                          <Field
-                            className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                            type="text"
+                          type="submit"
+                        >
+                          Login
+                        </button>
+                      </Form>
+                    )}
+                  </Formik>
+                </div>
+              </section>
+            </TabPanel>
+            <TabPanel className="overflow-auto" value={value} index={1}>
+              <section className="">
+                <div className="h-screen overflow-auto">
+                  <Formik
+                    initialValues={initialValuesForRegister}
+                    validationSchema={validationSchemaForRegister}
+                    onSubmit={onRegisterSubmit}
+                  >
+                    {({ errors, touched }) => (
+                      <Form>
+                        <div className="flex-col w-full">
+                          <div className="ll">
+                            {" "}
+                            <p className="font-semibold">Username</p>
+                          </div>
+                          <div className="ll">
+                            {" "}
+                            <Field
+                              className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
+                              type="text"
+                              name="name"
+                            />
+                          </div>
+
+                          <ErrorMessage
+                            component="div"
+                            className="text-red-500 text-xs"
                             name="name"
                           />
                         </div>
 
-                        <ErrorMessage
-                          component="div"
-                          className="text-red-500 text-xs"
-                          name="name"
-                        />
-                      </div>
+                        <div className="flex-col w-full">
+                          <div className="ll">
+                            {" "}
+                            <p className="font-semibold">NIC</p>
+                          </div>
+                          <div className="ll">
+                            {" "}
+                            <Field
+                              className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
+                              type="number"
+                              name="NIC"
+                            />
+                          </div>
 
-                      <div className="flex-col w-full">
-                        <div className="ll">
-                          {" "}
-                          <p className="font-semibold">Age</p>
-                        </div>
-                        <div className="ll">
-                          {" "}
-                          <Field
-                            className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                            type="number"
+                          <ErrorMessage
+                            component="div"
+                            className="text-red-500 text-xs"
                             name="age"
                           />
                         </div>
+                        <div className="flex-col w-full">
+                          <div className="ll">
+                            {" "}
+                            <p className="font-semibold">Email</p>
+                          </div>
+                          <div className="ll">
+                            {" "}
+                            <Field
+                              className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
+                              type="email"
+                              name="email"
+                            />
+                          </div>
 
-                        <ErrorMessage
-                          component="div"
-                          className="text-red-500 text-xs"
-                          name="age"
-                        />
-                      </div>
-                      <div className="flex-col w-full">
-                        <div className="ll">
-                          {" "}
-                          <p className="font-semibold">Email</p>
-                        </div>
-                        <div className="ll">
-                          {" "}
-                          <Field
-                            className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                            type="email"
+                          <ErrorMessage
+                            component="div"
+                            className="text-red-500 text-xs"
                             name="email"
                           />
                         </div>
+                        <div className="flex-col w-full">
+                          <div className="ll">
+                            {" "}
+                            <p className="font-semibold">Contact Number</p>
+                          </div>
+                          <div className="ll">
+                            {" "}
+                            <Field
+                              className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
+                              type="phone"
+                              name="phone"
+                            />
+                          </div>
 
-                        <ErrorMessage
-                          component="div"
-                          className="text-red-500 text-xs"
-                          name="email"
-                        />
-                      </div>
-                      <div className="flex-col w-full">
-                        <div className="ll">
-                          {" "}
-                          <p className="font-semibold">Phone Number</p>
-                        </div>
-                        <div className="ll">
-                          {" "}
-                          <Field
-                            className="border border-grey-dark text-sm p-3 my-1  rounded-md w-full"
-                            type="phone"
+                          <ErrorMessage
+                            component="div"
+                            className="text-red-500 text-xs"
                             name="phone"
                           />
                         </div>
 
-                        <ErrorMessage
-                          component="div"
-                          className="text-red-500 text-xs"
-                          name="phone"
-                        />
-                      </div>
+                        <div className="flex-col">
+                          <div className="ll">
+                            {" "}
+                            <p className="font-semibold">Password</p>
+                          </div>
+                          <div className="ll">
+                            {" "}
+                            <Field
+                              className="border border-grey-dark text-sm p-3 my-1 rounded-md w-full"
+                              type="password"
+                              name="password"
+                            />
+                          </div>
 
-                      <div className="flex-col">
-                        <div className="ll">
-                          {" "}
-                          <p className="font-semibold">Password</p>
-                        </div>
-                        <div className="ll">
-                          {" "}
-                          <Field
-                            className="border border-grey-dark text-sm p-3 my-1 rounded-md w-full"
-                            type="password"
+                          <ErrorMessage
+                            component="div"
+                            className="text-red-500 text-xs italic"
                             name="password"
                           />
                         </div>
+                        <div>
+                          <div className="ll">
+                            {" "}
+                            <p className="font-semibold">Confirm Password</p>
+                          </div>
+                          <div className="ll w-full">
+                            {" "}
+                            <Field
+                              className="border border-grey-dark text-sm p-3 my-3  rounded-md w-full"
+                              type="password"
+                              name="confirmPassword"
+                            />
+                          </div>
 
-                        <ErrorMessage
-                          component="div"
-                          className="text-red-500 text-xs italic"
-                          name="password"
-                        />
-                      </div>
-                      <div>
-                        <div className="ll">
-                          {" "}
-                          <p className="font-semibold">Confirm Password</p>
-                        </div>
-                        <div className="ll w-full">
-                          {" "}
-                          <Field
-                            className="border border-grey-dark text-sm p-3 my-3  rounded-md w-full"
-                            type="password"
+                          <ErrorMessage
+                            component="div"
+                            className="text-red-500 text-xs italic"
                             name="confirmPassword"
                           />
                         </div>
 
-                        <ErrorMessage
-                          component="div"
-                          className="text-red-500 text-xs italic"
-                          name="confirmPassword"
-                        />
-                      </div>
-
-                      <button
-                        className="bg-yellow-600 text-white w-full py-2 mt-2 hover:bg-white hover:text-black border-2
+                        <button
+                          className="bg-yellow-600 text-white w-full py-2 mt-2 hover:bg-white hover:text-black border-2
                 "
-                        type="submit"
-                      >
-                        Register
-                      </button>
-                      
-                    </Form>
-                  )}
-                </Formik>
-              </div>
-            </section>
-          </TabPanel>
-        </Box>
-      </div>
+                          type="submit"
+                        >
+                          Register
+                        </button>
+                      </Form>
+                    )}
+                  </Formik>
+                </div>
+              </section>
+            </TabPanel>
+          </Box>
+        </div>
+      )}
     </div>
   );
 };

@@ -13,7 +13,7 @@ export default function Sidebar() {
       <div
         className={` ${
           open ? "w-40" : "w-60 "
-        } flex flex-col h-screen p-3 bg-gray-800 shadow duration-300`}
+        } flex flex-col h-screen p-3 bg-cyan-800 shadow duration-300`}
       >
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -41,7 +41,7 @@ export default function Sidebar() {
               <li className="rounded-sm">
                 <button
                   onClick={() => setSelectedField("home")}
-                  className="flex items-center p-2 space-x-3 rounded-md hover:bg-slate-500 w-full"
+                  className="flex items-center p-2 space-x-3 rounded-md hover:bg-yellow-600 w-full"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -63,7 +63,7 @@ export default function Sidebar() {
               <li className="rounded-sm">
                 <button
                   onClick={() => setSelectedField("receptionist")}
-                  className="flex items-center p-2 space-x-3 rounded-md hover:bg-slate-500 w-full"
+                  className="flex items-center p-2 space-x-3 rounded-md hover:bg-yellow-600 w-full"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
