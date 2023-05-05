@@ -10,7 +10,7 @@ router.route("/add").post((req, res) => {
   const DOB = req.body.DateOfBirth;
   const NIC = req.body.NIC;
   const age = req.body.age;
-  const bloodGroup = req.body.BloodGroup;
+  const bloodGroup = req.body.bloodGroup;
   const time = req.body.time;
 
   const newPatient = new Patient({
@@ -20,12 +20,11 @@ router.route("/add").post((req, res) => {
     DOB,
     NIC,
     age,
-    password,
     bloodGroup,
     time,
   });
 
-  newInstructor
+  newPatient
     .save()
     .then(() => {
       res.json("Patient Added Successfully");
@@ -49,21 +48,19 @@ router.route("/").get((req, res) => {
 //update patient
 router.route("/update/:id").put(async (req, res) => {
   let patientId = req.params.id;
-  const { fullName, contact, sex, DOB, NIC, age, password, bloodGroup, time } =
-    req.body;
-  const updateInstructor = {
+  const { fullName, contact, sex, DOB, NIC, age, bloodGroup, time } = req.body;
+  const updatePatient = {
     fullName,
     contact,
     sex,
     DOB,
     NIC,
     age,
-    password,
     bloodGroup,
     time,
   };
 
-  const update = await Patient.findByIdAndUpdate(patientId, updateInstructor)
+  const update = await Patient.findByIdAndUpdate(patientId, updatePatient)
     .then(() => {
       res.status(200).send({ status: "Patient Updated" });
     })
@@ -83,7 +80,7 @@ router.route("/updateOne/:id").put(async (req, res) => {
     DOB: req.body.DateOfBirth || patient.DOB,
     NIC: req.body.NIC || patient.NIC,
     age: req.body.age || patient.age,
-    bloodGroup: req.body.BloodGroup || patient.bloodGroup,
+    bloodGroup: req.body.bloodGroup || patient.bloodGroup,
     time: req.body.time || patient.time,
   };
   patient = await Patient.findByIdAndUpdate(req.params.id, data, {
@@ -116,7 +113,15 @@ router.route("/get/:id").get((req, res) => {
       console.log(err);
     });
 });
-
-
+router.route("/search/:text").get((req, res) => {
+  const searchQuery = req.params.text;
+  const regex = new RegExp(searchQuery, "i"); // 'i' flag for case-insensitive search
+  const patients = Patient.find({ fullName: regex });
+  if (patients.length > 0) {
+    res.json(patients);
+  } else {
+    res.status(404).json({ error: "No patient found" });
+  }
+});
 
 module.exports = router;

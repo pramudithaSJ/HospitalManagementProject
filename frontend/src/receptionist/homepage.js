@@ -92,6 +92,7 @@ const ReceptionistHomePage = () => {
       .then((response) => {
         toast.success("Successfully Logged In");
         localStorage.setItem("isLogin", true);
+        window.location.reload();
       })
 
       .catch((error) => {
@@ -113,7 +114,7 @@ const ReceptionistHomePage = () => {
   };
   return (
     <div className=" w-full bg-slate-400 flex justify-center content-center shadow-lg p-10 h-screen overflow-auto">
-      {isLogin ? (
+      {isLogin === "true" ? (
         <div className=" bg-slate-100 w-full p-10 shadow-lg rounded-lg min-h-screen overflow-auto">
           <Patient />
         </div>

@@ -35,7 +35,7 @@ const PatientSchema = new Schema({
     required: true,
   },
 });
-
+PatientSchema.index({ fullName: "text" });
 //instructor table and path
 const Patient = mongoose.model("patient", PatientSchema);
 module.exports = Patient;
