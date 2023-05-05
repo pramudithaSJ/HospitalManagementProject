@@ -113,14 +113,20 @@ router.route("/get/:id").get((req, res) => {
       console.log(err);
     });
 });
-router.route("/search/:text").get((req, res) => {
-  const searchQuery = req.params.text;
-  const regex = new RegExp(searchQuery, "i"); // 'i' flag for case-insensitive search
-  const patients = Patient.find({ fullName: regex });
-  if (patients.length > 0) {
-    res.json(patients);
-  } else {
-    res.status(404).json({ error: "No patient found" });
+router.route("/search/:text").get(async (req, res) => {
+  try {
+    const query = req.params.text;
+    console.log(query);
+    const regex = new RegExp(query, "i");
+    const patients = await Patient.find({ fullName: { $regex: regex } });
+    if (patients.length > 0) {
+      res.status(200).json(patients);
+    } else {
+      res.status(200).json({ message: "No patients found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: error.message });
   }
 });
 
